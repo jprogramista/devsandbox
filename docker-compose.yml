@@ -1,0 +1,280 @@
+# =============================================================================
+# DEV SANDBOX - Docker Compose Configuration
+# =============================================================================
+# Activation:
+#   docker-compose up -d
+#
+# Connection IntelliJ Gateway:
+#   SSH: localhost:2222, user: developer, pass: sandbox
+#
+# Ports:
+#   2222  - SSH (IntelliJ Gateway)
+#   8080  - Spring Boot
+#   5005  - Java Debug
+#   4200  - Angular
+#   9229  - Node Debug
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # SANDBOX - Main development environment
+  # ===========================================================================
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 20
+        GRADLE_VERSION: "8.5"
+        MAVEN_VERSION: "3.9.6"
+        USERNAME: developer
+        USER_UID: 1100
+        USER_GID: 1100
+    container_name: dev-sandbox
+    hostname: dev-sandbox
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Ports
+    ports:
+      - "2222:22"      # SSH for IntelliJ Gateway
+      - "8080:8080"    # Spring Boot
+      - "5005:5005"    # Java Remote Debug
+      - "4200:4200"    # Angular Dev Server
+      - "9229:9229"    # Node.js Debug
+#      - "3000:3000"    # Additional port (e.g. other services)
+#      - "5000:5000"    # Python Flask/FastAPI
+    
+    # Volumes
+    volumes:
+      # Workspace - The ONLY volume with project data
+      # You can replace it with a named volume for greater isolation
+      - sandbox-workspace:/workspace
+      
+      # Cache persistence (optional - speeds up rebuilds)
+      - sandbox-gradle-cache:/home/developer/.gradle
+      - sandbox-maven-cache:/home/developer/.m2
+      - sandbox-npm-cache:/home/developer/.npm
+      - sandbox-sdkman-cache:/home/developer/.sdkman
+      - sandbox-nvm-cache:/home/developer/.nvm
+      
+      # SSH keys (optional - for git clone via SSH)
+      # Uncomment if you want to use SSH keys from the host
+      # - ~/.ssh/id_ed25519:/home/developer/.ssh/id_ed25519:ro
+      # - ~/.ssh/known_hosts:/home/developer/.ssh/known_hosts:ro
+    
+    # Network
+    networks:
+      - dev-network
+    
+    # Environment
+    environment:
+      # Timezone
+      - TZ=Europe/Warsaw
+      
+      # Java
+      - JAVA_OPTS=-Xmx2g -Xms512m
+      
+      # Spring Boot - connection to databases
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/devdb?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=dev
+      - SPRING_DATASOURCE_PASSWORD=dev123
+      
+      # PostgreSQL alternative
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=dev123
+      
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      
+      # Elasticsearch
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      
+      # Node
+      - NODE_ENV=development
+      
+      # Angular - allow connections from host
+      - NG_CLI_ANALYTICS=false
+    
+    # Dependencies
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#      postgres:
+#        condition: service_healthy
+#      redis:
+#        condition: service_healthy
+    
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+  # ===========================================================================
+  # MYSQL
+  # ===========================================================================
+  #  mysql:
+  #    image: mysql:8.0
+  #    container_name: dev-mysql
+  #    restart: unless-stopped
+  #
+  #    ports:
+  #      - "3306:3306"
+  #
+  #    environment:
+  #      - MYSQL_ROOT_PASSWORD=root123
+  #      - MYSQL_DATABASE=devdb
+  #      - MYSQL_USER=dev
+  #      - MYSQL_PASSWORD=dev123
+  #
+  #    volumes:
+  #      - mysql-data:/var/lib/mysql
+  #      # Initialization (optional)
+  #      # - ./init/mysql:/docker-entrypoint-initdb.d:ro
+  #
+  #    networks:
+  #      - dev-network
+  #
+  #    healthcheck:
+  #      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 5
+  #      start_period: 30s
+  #
+  #    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # ===========================================================================
+  # POSTGRESQL
+  # ===========================================================================
+  #  postgres:
+  #    image: postgres:16-alpine
+  #    container_name: dev-postgres
+  #    restart: unless-stopped
+  #
+  #    ports:
+  #      - "5432:5432"
+  #
+  #    environment:
+  #      - POSTGRES_DB=devdb
+  #      - POSTGRES_USER=dev
+  #      - POSTGRES_PASSWORD=dev123
+  #
+  #    volumes:
+  #      - postgres-data:/var/lib/postgresql/data
+  #      # Initialization (optional)
+  #      # - ./init/postgres:/docker-entrypoint-initdb.d:ro
+  #
+  #    networks:
+  #      - dev-network
+  #
+  #    healthcheck:
+  #      test: ["CMD-SHELL", "pg_isready -U dev -d devdb"]
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 5
+  #      start_period: 30s
+
+  # ===========================================================================
+  # REDIS
+  # ===========================================================================
+  #  redis:
+  #    image: redis:7-alpine
+  #    container_name: dev-redis
+  #    restart: unless-stopped
+  #
+  #    ports:
+  #      - "6379:6379"
+  #
+  #    volumes:
+  #      - redis-data:/data
+  #
+  #    networks:
+  #      - dev-network
+  #
+  #    healthcheck:
+  #      test: ["CMD", "redis-cli", "ping"]
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 5
+  #
+  #    command: redis-server --appendonly yes
+
+  # ===========================================================================
+  # ELASTICSEARCH (optional - uncomment if needed)
+  # ===========================================================================
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+  #   container_name: dev-elasticsearch
+  #   restart: unless-stopped
+  #   
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   
+  #   networks:
+  #     - dev-network
+  #   
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  dev-network:
+    driver: bridge
+    # Isolation - no internet access for sandbox (optional)
+    # internal: true
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  # Workspace - main volume with code
+  sandbox-workspace:
+    driver: local
+  
+  # Cache volumes - speeds up builds
+  sandbox-gradle-cache:
+    driver: local
+  sandbox-maven-cache:
+    driver: local
+  sandbox-npm-cache:
+    driver: local
+  sandbox-sdkman-cache:
+    driver: local
+  sandbox-nvm-cache:
+    driver: local
+  
+  # Database volumes
+  # mysql-data:
+  #   driver: local
+  # postgres-data:
+  #   driver: local
+  # redis-data:
+  #   driver: local
+  # elasticsearch-data:
+  #   driver: local

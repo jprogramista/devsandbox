@@ -1,0 +1,15 @@
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.env.local
+secrets/
+
+# Logs
+*.log
+logs/
