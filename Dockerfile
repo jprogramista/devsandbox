@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     git \
+    sudo \
     vim \
     nano \
     htop \
@@ -125,6 +126,11 @@ RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/$USERNAME/.bashrc \
 
 # Switch back to root for remaining setup
 USER root
+
+# =============================================================================
+# PLAYWRIGHT SYSTEM DEPENDENCIES
+# =============================================================================
+RUN bash -c "source $HOME/.nvm/nvm.sh && npx -y playwright install-deps"
 
 # =============================================================================
 # PYTHON
