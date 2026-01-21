@@ -15,6 +15,8 @@
 #   9229  - Node Debug
 # =============================================================================
 
+version: '3.3'
+
 services:
   # ===========================================================================
   # SANDBOX - Main development environment
@@ -39,10 +41,11 @@ services:
     # Ports
     ports:
       - "2222:22"      # SSH for IntelliJ Gateway
-      - "8080:8080"    # Spring Boot
-      - "5005:5005"    # Java Remote Debug
-      - "4200:4200"    # Angular Dev Server
-      - "9229:9229"    # Node.js Debug
+# enable if you want to work with any of them from Sandbox
+#      - "8080:8080"    # Spring Boot
+#      - "5005:5005"    # Java Remote Debug
+#      - "4200:4200"    # Angular Dev Server
+#      - "9229:9229"    # Node.js Debug
 #      - "3000:3000"    # Additional port (e.g. other services)
 #      - "5000:5000"    # Python Flask/FastAPI
     
