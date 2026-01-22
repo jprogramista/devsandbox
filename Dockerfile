@@ -184,7 +184,13 @@ COPY scripts/clone-repo.sh /usr/local/bin/clone-repo.sh
 COPY scripts/start-backend.sh /usr/local/bin/start-backend.sh
 COPY scripts/start-frontend.sh /usr/local/bin/start-frontend.sh
 COPY scripts/claude-worktree.sh /usr/local/bin/claude-worktree.sh
+COPY agent/claude-job.sh /usr/local/bin/claude-job.sh
 RUN chmod +x /usr/local/bin/*.sh
+
+# =============================================================================
+# CLAUDE JOB FOLDER
+# =============================================================================
+RUN mkdir -p /var/log/claude-jobs && chown -R $USERNAME:$USERNAME /var/log/claude-jobs
 
 # =============================================================================
 # PORTS
