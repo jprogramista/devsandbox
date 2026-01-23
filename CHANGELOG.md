@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2026-01-23
+
+### Changed
+- Enhanced Claude job script with worktrees support and significant improvements to `agent/claude-job.sh`
+
 ## 2026-01-22
 
 ### Added
