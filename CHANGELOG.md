@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Enhanced Claude job script with worktrees support and significant improvements to `agent/claude-job.sh`
+- Added GitHub CLI (gh) for PR management
 
 ## 2026-01-22
 
