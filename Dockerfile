@@ -131,13 +131,15 @@ RUN bash -c "source $HOME/.nvm/nvm.sh \
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/$USERNAME/.bashrc \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"' >> /home/$USERNAME/.bashrc
 
+# Switch back to root for remaining setup
+USER root
+
 # =============================================================================
 # PLAYWRIGHT SYSTEM DEPENDENCIES
 # =============================================================================
-RUN bash -c "source $HOME/.nvm/nvm.sh && npx -y playwright install-deps"
-
-# Switch back to root for remaining setup
-USER root
+RUN rm -f /etc/apt/sources.list.d/github-cli.list \
+          /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && NVM_DIR="/home/${USERNAME}/.nvm" bash -c "source /home/${USERNAME}/.nvm/nvm.sh && npx -y playwright install-deps"
 
 # =============================================================================
 # PYTHON

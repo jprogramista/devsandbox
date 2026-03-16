@@ -40,7 +40,7 @@ services:
     
     # Ports
     ports:
-      - "2222:22"      # SSH for IntelliJ Gateway
+      - "127.0.0.1:2222:22"      # SSH for IntelliJ Gateway
 # enable if you want to work with any of them from Sandbox
 #      - "8080:8080"    # Spring Boot
 #      - "5005:5005"    # Java Remote Debug
